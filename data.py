@@ -10,8 +10,11 @@ class Grade:
     radius: float
     mass: float
 
+    def __str__(self):
+        return f'{self.radius}'
 
-class Grades(set):
+
+class Grades(list):
     def __init__(self, *args):
         super().__init__(*args)
         self.next_radius = MIN_RADIUS_BUG
@@ -25,7 +28,7 @@ class Grades(set):
         self.current_radius = self.next_radius
         self.next_radius *= UP_SIZE
         self.next_mass *= UP_SIZE
-        super().add(grade)
+        super().append(grade)
         return grade
 
     @staticmethod
@@ -33,7 +36,9 @@ class Grades(set):
         return tuple(random.randrange(256) for i in range(4))
 
     def get_ramdom_grade(self):
-        return random.choice(list(self)[:-1])
+        k = len(self) - 1 if len(self) < 6 else 5
+        items = list(self)[:k]
+        return random.choice(items)
 
     def next_grade(self, radius):
         if radius == self.current_radius:
@@ -42,4 +47,17 @@ class Grades(set):
             if grade.radius == radius * UP_SIZE:
                 return grade
 
+
+class Score:
+    value = 0
+
+    def add(self, x: int):
+        self.value += x
+
+    def __str__(self):
+        return str(self.value)
+
+
 grades = Grades()
+
+score = Score()
