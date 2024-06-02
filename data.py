@@ -51,8 +51,8 @@ class Grades(list):
 class Score:
     value = 0
 
-    def add(self, x: int):
-        self.value += x
+    def add(self, x: int | float):
+        self.value += int(x)
 
     def __str__(self):
         return str(self.value)

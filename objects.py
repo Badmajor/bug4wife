@@ -1,52 +1,55 @@
 import pymunk
 import pygame as pg
-from config import FRICTION, ELASTICITY
-from data import grades, Grade, score
+from config import FRICTION, ELASTICITY, WIDTH
+from data import grades, score
 from events import GAME_OVER
 
 
-def create_bug(space, pos, grade=None, is_new=True):
-    if not grade:
-        grade: Grade = grades.get_ramdom_grade()
-    mass = grade.mass
-    radius = grade.radius
-    color = grade.color
-    bug_moment = pymunk.moment_for_circle(mass, 0, radius, )
-    bug_body = pymunk.Body(mass, bug_moment)
-    if is_new:
-        bug_body.position = (pos[0], radius)
-    else:
-        bug_body.position = pos
-    bug_shape = pymunk.Circle(bug_body, radius)
-    bug_shape.elasticity = ELASTICITY
-    bug_shape.friction = FRICTION
-    bug_shape.color = color
-    bug_shape.collision_type = 1
-    score.add(int(radius))
-    space.add(bug_body, bug_shape)
+class Bug:
+    def __init__(self, pos=None, grade=None, kinematic=False):
+        self.grade = grade or grades.get_ramdom_grade()
+        self.mass = self.grade.mass
+        self.radius = self.grade.radius
+        self.color = self.grade.color
+        self.moment = pymunk.moment_for_circle(self.mass, 0, self.radius)
+        if kinematic:
+            self.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
+        else:
+            self.body = pymunk.Body(self.mass, self.moment)
+        self.body.position = pos or (WIDTH / 2, self.radius)
+        self.shape = pymunk.Circle(self.body, self.radius)
+        self.shape.elasticity = ELASTICITY
+        self.shape.friction = FRICTION
+        self.shape.color = self.color
+        self.shape.collision_type = 1
+        if kinematic:
+            self.shape.collision_type = 4
+            return
+
+    def make_dynamic(self):
+        self.body.body_type = pymunk.Body.DYNAMIC
+        self.body.mass = self.mass
+        self.body.moment = self.moment
 
 
-def preview_bug(space, grade):
-    radius = grade.radius
-    color = grade.color
-    bug_body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
-    bug_body.position = (300, 0)
-    preview_bug_shape = pymunk.Circle(bug_body, radius)
-    preview_bug_shape.color = color
-    preview_bug_shape.collision_type = 2
-    space.add(bug_body, preview_bug_shape)
-    return preview_bug_shape
+def get_middle_point(p1, p2):
+    x1, y1 = p1
+    x2, y2 = p2
+    x = (x1 + x2) / 2
+    y = (y1 + y2) / 2
+    return x, y
 
 
 def collision_callback(arbiter, space, data):
     """ Обрабатывает столкновения жуков"""
     items = arbiter.shapes
     if items[0].radius == items[1].radius:
-        pos = items[0].body.position
-        radius = items[0].radius
-        next_grade = grades.next_grade(radius)
-        space.remove(*items)
-        create_bug(space, pos, next_grade, is_new=False)
+        from data import score
+        score.add(items[1].radius)
+        pos = get_middle_point(*(item.body.position for item in items))
+        space.remove(*items, *(shape.body for shape in items))
+        bug = Bug(pos=pos, grade=grades.next_grade(items[0].radius))
+        space.add(bug.body, bug.shape)
     return True
 
 
@@ -55,4 +58,3 @@ def sensor_callback(arbiter, space, data):
     bug = arbiter.shapes
     pg.event.post(GAME_OVER)
     return True
-
