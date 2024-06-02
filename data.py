@@ -11,7 +11,7 @@ class Grade:
     mass: float
 
     def __str__(self):
-        return f'{self.radius}'
+        return f"{self.radius}"
 
 
 class Grades(list):
@@ -24,7 +24,9 @@ class Grades(list):
             self.add()
 
     def add(self, *args, **kwargs):
-        grade = Grade(color=self._get_random_color(), radius=self.next_radius, mass=self.next_mass)
+        grade = Grade(
+            color=self._get_random_color(), radius=self.next_radius, mass=self.next_mass
+        )
         self.current_radius = self.next_radius
         self.next_radius *= UP_SIZE
         self.next_mass *= UP_SIZE

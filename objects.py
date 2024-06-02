@@ -1,7 +1,7 @@
 import pymunk
 import pygame as pg
 from config import FRICTION, ELASTICITY, WIDTH
-from data import grades, score
+from data import grades
 from events import GAME_OVER
 
 
@@ -41,10 +41,11 @@ def get_middle_point(p1, p2):
 
 
 def collision_callback(arbiter, space, data):
-    """ Обрабатывает столкновения жуков"""
+    """Обрабатывает столкновения жуков"""
     items = arbiter.shapes
     if items[0].radius == items[1].radius:
         from data import score
+
         score.add(items[1].radius)
         pos = get_middle_point(*(item.body.position for item in items))
         space.remove(*items, *(shape.body for shape in items))
@@ -55,6 +56,5 @@ def collision_callback(arbiter, space, data):
 
 def sensor_callback(arbiter, space, data):
     """Обрабатывает столкновение с крышей"""
-    bug = arbiter.shapes
     pg.event.post(GAME_OVER)
     return True
