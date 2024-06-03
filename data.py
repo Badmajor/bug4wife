@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import random
 
-from config import MIN_MASS_BUG, MIN_RADIUS_BUG, NUM_START_BUG, UP_SIZE
+from config import MIN_MASS_BUG, MIN_RADIUS_BUG, NUM_START_BUG, UP_SIZE, COLORS_FOR_BUG
 
 
 @dataclass(frozen=True, eq=True)
@@ -16,6 +16,7 @@ class Grade:
 
 class Grades(list):
     def __init__(self, *args):
+        self.colors = (color for color in COLORS_FOR_BUG)
         super().__init__(*args)
         self.next_radius = MIN_RADIUS_BUG
         self.next_mass = MIN_MASS_BUG
@@ -25,7 +26,7 @@ class Grades(list):
 
     def add(self, *args, **kwargs):
         grade = Grade(
-            color=self._get_random_color(), radius=self.next_radius, mass=self.next_mass
+            color=self._get_color(), radius=self.next_radius, mass=self.next_mass
         )
         self.current_radius = self.next_radius
         self.next_radius *= UP_SIZE
@@ -33,9 +34,12 @@ class Grades(list):
         super().append(grade)
         return grade
 
-    @staticmethod
-    def _get_random_color() -> tuple:
-        return tuple(random.randrange(256) for i in range(4))
+    def _get_color(self) -> tuple:
+        try:
+            return next(self.colors)
+        except StopIteration:
+            self.colors = (color for color in COLORS_FOR_BUG)
+            return next(self.colors)
 
     def get_ramdom_grade(self):
         k = len(self) - 1 if len(self) < 6 else 5

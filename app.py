@@ -1,7 +1,17 @@
 import pygame as pg
 import pymunk.pygame_util
 
-from config import CREATION_DELAY, WIDTH, HEIGHT, FPS, ELASTICITY, DEBUG, COLOR_WALL, COLOR_FLOOR
+from config import (
+    CREATION_DELAY,
+    WIDTH,
+    HEIGHT,
+    FPS,
+    ELASTICITY,
+    DEBUG,
+    COLOR_WALL,
+    COLOR_FLOOR,
+    BG_COLOR,
+)
 from data import score
 from events import GAME_OVER_TYPE
 from objects import collision_callback, sensor_callback, Bug
@@ -53,12 +63,15 @@ last_bug_creation_time = 0
 game = True
 # Отрисовка PyGame
 while game:
-
-    surface.fill(pg.Color("white"))
+    surface.fill(BG_COLOR)
     current_time = pg.time.get_ticks()
     pg.draw.line(surface, COLOR_FLOOR, floor.a, floor.b, int(floor.radius) * 2)
-    pg.draw.line(surface, COLOR_WALL, left_wall.a, left_wall.b, int(left_wall.radius) * 2)
-    pg.draw.line(surface, COLOR_WALL, right_wall.a, right_wall.b, int(right_wall.radius) * 2)
+    pg.draw.line(
+        surface, COLOR_WALL, left_wall.a, left_wall.b, int(left_wall.radius) * 2
+    )
+    pg.draw.line(
+        surface, COLOR_WALL, right_wall.a, right_wall.b, int(right_wall.radius) * 2
+    )
     if (
         bug.shape.collision_type == 1
         and current_time - last_bug_creation_time > CREATION_DELAY
@@ -115,6 +128,7 @@ else:
     font = pg.font.Font(None, 74)
     pg.draw.rect(surface, pg.Color("grey"), (100, 200, 450, 250))
     game_over = font.render("Game Over ", True, pg.Color("black"))
+    font = pg.font.Font(None, 54)
     score_table = font.render(f"Твои очки: {score}", True, pg.Color("red"))
     surface.blit(game_over, (200, 250))
     surface.blit(score_table, (150, 350))
